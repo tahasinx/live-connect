@@ -9,6 +9,7 @@ A modern, real-time video chat and messaging application built with WebRTC techn
 - **Text Messaging**: Real-time chat with a dedicated message modal, independent of call state
 - **Connection Status Sync**: Live status indicators (Online, Idle, In Call, Disconnected) with periodic sync and visual feedback
 - **Manual Call Flow**: Calls are only initiated by user action, with ringing modal and manual accept/decline
+- **Ringtone on Incoming/Outgoing Calls**: Both caller and callee hear a ringtone (using `assets/sounds/ring-tone-68676.mp3`) when a call is initiated, until it is answered or declined. Ringtone stops automatically when the call is handled.
 - **Idle Detection**: Automatic status updates when users are away (15-minute timeout)
 - **Automatic Reconnection**: Seamless reconnection handling with fallback peer IDs
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
@@ -71,8 +72,10 @@ A modern, real-time video chat and messaging application built with WebRTC techn
    - Click the call button to open the call type selection modal
    - Choose video or audio call
    - The remote peer sees a ringing modal and can accept or decline
+   - **Ringtone:** Both caller and callee will hear a ringtone until the call is answered or declined.
    - Your local video appears in the top-right corner; remote video fills the main area
    - Use the disconnect button to end the call
+   - **Improved Status Handling:** After a call is disconnected or rejected, the status is always reset to "Online" for both peers, and the call modal is closed automatically.
 
 3. **Text Messaging**
    - Click the chat button to open the message modal (can be used independently of calls)
@@ -99,6 +102,8 @@ project_chat/
 │   │   └── pages/
 │   │       └── chat.js    # Chat functionality (minified, not used in main flow)
 │   ├── images/            # UI assets and avatars
+│   ├── sounds/
+│   │   └── ring-tone-68676.mp3 # Ringtone audio for calls
 │   └── vendors/           # Third-party libraries
 └── README.md              # This file
 ```

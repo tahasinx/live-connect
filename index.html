@@ -191,7 +191,8 @@
                 <div class="modal-content">
                     <div class="modal-header justify-content-between align-items-center">
                         <h5 class="modal-title"><i class="bi bi-chat-left-text"></i> Chat</h5>
-                        <button type="button" class="btn btn-icon btn-danger btn-rounded btn-tone" onclick="modal_toggle('in_chat_modal')">
+                        <button type="button" class="btn btn-icon btn-danger btn-rounded btn-tone"
+                            onclick="modal_toggle('in_chat_modal')">
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
@@ -221,6 +222,7 @@
         </div>
     </div>
 
+    <audio id="ringtone" src="assets/sounds/ring-tone-68676.mp3" preload="auto"></audio>
 
     <!-- Core Vendors JS -->
     <script src="assets/js/vendors.min.js"></script>
@@ -374,6 +376,17 @@
                                 peerStatus[data.peerID] = data.status;
                                 updateStatus(data.peerID, data.status === 'online' ? 'Online' : 'Idle', data.status === 'online' ? 'success' : 'warning');
                             }
+                            if (data.type === 'call-declined') {
+                                console.log('Call was declined by peer');
+                                // Close any open modals
+                                $('#ringing-modal').modal('hide');
+                                $('#call-type-modal').modal('hide');
+                                $('#video-calling-modal').modal('hide');
+                                // Set status to online and update UI
+                                peerStatus[currentPeerId] = 'online';
+                                updateStatus(currentPeerId, 'Online', 'success');
+                                notifyPeers('online');
+                            }
                         });
                         conn.on('close', () => {
                             console.log('Connection closed with ' + conn.peer);
@@ -408,7 +421,8 @@
                         }
                         console.log('Incoming call from ' + remotePeerId);
                         incomingCall = call;
-
+                        // Play ringing sound
+                        playRingtone();
                         // Show ringing modal
                         $('#ringing-modal').modal('show');
                     });
@@ -465,6 +479,10 @@
                                     $('#ringing-modal').modal('hide');
                                     $('#call-type-modal').modal('hide');
                                     $('#video-calling-modal').modal('hide');
+                                    // Set status to online and update UI
+                                    peerStatus[currentPeerId] = 'online';
+                                    updateStatus(currentPeerId, 'Online', 'success');
+                                    notifyPeers('online');
                                 }
                             });
 
@@ -621,6 +639,10 @@
                             $('#ringing-modal').modal('hide');
                             $('#call-type-modal').modal('hide');
                             $('#video-calling-modal').modal('hide');
+                            // Set status to online and update UI
+                            peerStatus[currentPeerId] = 'online';
+                            updateStatus(currentPeerId, 'Online', 'success');
+                            notifyPeers('online');
                         }
                     });
                     conn.on('close', () => {
@@ -824,13 +846,13 @@
                 function handleCallEnd() {
                     currentCall = null;
                     hideCallActionButtons();
+                    // Hide video and audio call modals on disconnect
                     $('#video-calling-modal').modal('hide');
-
+                    $('#audio-calling-modal').modal && $('#audio-calling-modal').modal('hide'); // In case you have a separate audio modal
                     // Reset status to online
                     peerStatus[currentPeerId] = 'online';
                     updateStatus(currentPeerId, 'Online', 'success');
-                    notifyPeers('online');
-
+                    notifyPeers('online'); // Ensure remote peer also updates status
                     // Reset idle timeout since user is active
                     resetIdleTimeout();
                 }
@@ -868,6 +890,7 @@
 
                 // Ringing modal event handlers
                 acceptCallBtn.addEventListener('click', async () => {
+                    stopRingtone();
                     if (incomingCall) {
                         $('#ringing-modal').modal('hide');
 
@@ -922,11 +945,11 @@
                 });
 
                 declineCallBtn.addEventListener('click', () => {
+                    stopRingtone();
                     if (incomingCall) {
                         incomingCall.close();
                         incomingCall = null;
                         $('#ringing-modal').modal('hide');
-
                         // Notify peer that call was declined
                         if (connection && connection.open) {
                             connection.send({
@@ -1123,6 +1146,81 @@
             .catch(err => {
                 console.error('Failed to get media: ', err);
             });
+
+        // Utility to play/stop ringtone
+        function playRingtone() {
+            const ringtone = document.getElementById('ringtone');
+            if (ringtone) {
+                ringtone.loop = true;
+                ringtone.currentTime = 0;
+                ringtone.play();
+            }
+        }
+        function stopRingtone() {
+            const ringtone = document.getElementById('ringtone');
+            if (ringtone) {
+                ringtone.pause();
+                ringtone.currentTime = 0;
+            }
+        }
+
+        // Also stop ringtone if modal is closed by other means
+        $('#ringing-modal').on('hidden.bs.modal', function () {
+            stopRingtone();
+        });
+
+        // For outgoing call, play ringtone until answered or declined
+        let outgoingRinging = false;
+        function startOutgoingRinging() {
+            if (!outgoingRinging) {
+                playRingtone();
+                outgoingRinging = true;
+            }
+        }
+        function stopOutgoingRinging() {
+            if (outgoingRinging) {
+                stopRingtone();
+                outgoingRinging = false;
+            }
+        }
+        // When making a call (after peer.call), call startOutgoingRinging().
+        // When call is answered (on 'stream') or declined (on 'close'/'error'), call stopOutgoingRinging().
+
+        // --- Ringtone signaling logic ---
+        // When making a call, send a 'ringing' signal to the remote peer
+        function sendRingingSignal() {
+            if (connection && connection.open) {
+                connection.send({ type: 'ringing', peerID: currentPeerId });
+            }
+        }
+
+        // Listen for 'ringing' signal from remote peer
+        if (connection) {
+            connection.on('data', data => {
+                if (data.type === 'ringing') {
+                    playRingtone();
+                    // Optionally show ringing modal if not already shown
+                    if (!$('#ringing-modal').hasClass('show')) {
+                        $('#ringing-modal').modal('show');
+                    }
+                }
+                if (data.type === 'call-declined' || data.type === 'call-answered') {
+                    stopRingtone();
+                }
+            });
+        }
+
+        // When making a call (outgoing), send the ringing signal
+        // (Insert this after peer.call in your call logic)
+        // Example:
+        // const call = peer.call(remotePeerId, stream);
+        // sendRingingSignal();
+        // startOutgoingRinging();
+        // ...
+        // When call is answered or declined, send a stop signal
+        // Example:
+        // connection.send({ type: 'call-answered', peerID: currentPeerId });
+        // stopOutgoingRinging();
     </script>
 
 
