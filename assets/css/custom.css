@@ -110,9 +110,11 @@ video {
 }
 
 #chat-messages {
-    max-height: 300px;
-    overflow-y: auto;
-    padding   : 15px;
+    flex-grow : 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding   : 1rem !important;
+    background: #fff;
 }
 
 #chat-messages::-webkit-scrollbar {
@@ -131,6 +133,199 @@ video {
 
 #chat-messages::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+/* Ringing animation */
+.ringing-animation {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity  : 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity  : 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity  : 1;
+    }
+}
+
+/* Gap utility for buttons */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+/* Message button styling */
+#message-btn {
+    margin-left: 10px;
+}
+
+#message-btn:hover {
+    transform : scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+/* Connection status styling */
+#connection-status {
+    font-size    : 0.8rem;
+    padding      : 0.5rem 0.75rem;
+    border-radius: 20px;
+}
+
+/* Syncing animation */
+#connection-status.badge-warning {
+    animation: pulse 2s infinite;
+}
+
+/* Ensure chat modal is visible */
+#in_chat_modal {
+    z-index: 9999 !important;
+}
+
+#in_chat_modal .modal-dialog {
+    z-index  : 10000 !important;
+    margin   : 0 !important;
+    height   : 100% !important;
+    max-width: 400px !important;
+}
+
+#in_chat_modal .modal-content {
+    height       : 100% !important;
+    border-radius: 0 !important;
+}
+
+/* Custom right-side modal positioning */
+#in_chat_modal {
+    position        : fixed !important;
+    top             : 0 !important;
+    right           : 0 !important;
+    bottom          : 0 !important;
+    left            : auto !important;
+    width           : 400px !important;
+    z-index         : 9999 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+#in_chat_modal .modal-dialog {
+    position  : absolute !important;
+    right     : 0 !important;
+    top       : 0 !important;
+    bottom    : 0 !important;
+    width     : 100% !important;
+    max-width : 400px !important;
+    margin    : 0 !important;
+    transform : translateX(100%) !important;
+    transition: transform 0.3s ease-out !important;
+}
+
+#in_chat_modal.show .modal-dialog {
+    transform: translateX(0) !important;
+}
+
+#in_chat_modal .modal-content {
+    height        : 100% !important;
+    border-radius : 0 !important;
+    border        : none !important;
+    box-shadow    : -5px 0 15px rgba(0, 0, 0, 0.3) !important;
+    display       : flex !important;
+    flex-direction: column !important;
+}
+
+#in_chat_modal .modal-header {
+    flex-shrink: 0 !important;
+}
+
+#in_chat_modal .modal-body {
+    display       : flex !important;
+    flex-direction: column !important;
+    flex          : 1 1 auto !important;
+    min-height    : 0 !important;
+    padding       : 0 !important;
+}
+
+#in_chat_modal .modal-footer {
+    flex-shrink: 0 !important;
+    position   : sticky !important;
+    bottom     : 0 !important;
+    background : white !important;
+    border-top : 1px solid #dee2e6 !important;
+    padding    : 15px !important;
+    margin-top : auto !important;
+}
+
+/* Ensure messages are properly spaced and input stays at bottom */
+#in_chat_modal .modal-body {
+    flex          : 1 !important;
+    overflow-y    : auto !important;
+    padding       : 15px !important;
+    display       : flex !important;
+    flex-direction: column !important;
+}
+
+#in_chat_modal .modal-body .scrollable {
+    flex      : 1 !important;
+    overflow-y: auto !important;
+}
+
+/* Message styling improvements */
+.message {
+    margin-bottom: 15px !important;
+}
+
+.message-bubble {
+    word-wrap: break-word !important;
+    max-width: 70% !important;
+}
+
+.message-time {
+    font-size: 0.75rem !important;
+    opacity  : 0.7 !important;
+}
+
+/* Message button notification effect */
+#message-btn.btn-success {
+    animation: pulse-notification 0.5s ease-in-out !important;
+}
+
+@keyframes pulse-notification {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Debug modal visibility */
+#in_chat_modal.show {
+    display: block !important;
+}
+
+/* Force modal to be visible when debugging */
+#in_chat_modal.debug {
+    display   : block !important;
+    visibility: visible !important;
+    opacity   : 1 !important;
+}
+
+.ml-3 {
+    margin-left: 1rem;
 }
 
 @media (max-width: 480px) {

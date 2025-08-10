@@ -1,20 +1,23 @@
-# PeerChat - WebRTC Video Chat Application
+# Peer Media - WebRTC Video Chat Application
 
-A modern, real-time video chat application built with WebRTC technology, featuring peer-to-peer communication, status tracking, and a beautiful responsive UI.
+A modern, real-time video chat and messaging application built with WebRTC technology, featuring peer-to-peer communication, status tracking, and a beautiful responsive UI.
 
 ## 🌟 Features
 
 ### Core Functionality
-- **Peer-to-Peer Video Calls**: Direct browser-to-browser video communication using WebRTC
-- **Real-time Status Tracking**: Monitor online/offline/idle status of connected peers
-- **Automatic Reconnection**: Seamless reconnection handling with fallback peer IDs
+- **Peer-to-Peer Video & Audio Calls**: Direct browser-to-browser video and audio communication using WebRTC
+- **Text Messaging**: Real-time chat with a dedicated message modal, independent of call state
+- **Connection Status Sync**: Live status indicators (Online, Idle, In Call, Disconnected) with periodic sync and visual feedback
+- **Manual Call Flow**: Calls are only initiated by user action, with ringing modal and manual accept/decline
 - **Idle Detection**: Automatic status updates when users are away (15-minute timeout)
+- **Automatic Reconnection**: Seamless reconnection handling with fallback peer IDs
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 
 ### User Interface
 - **Modern Dashboard**: Clean, professional interface built with Bootstrap
-- **Status Indicators**: Visual badges showing connection status (Online/Offline/Idle)
+- **Status Indicators**: Visual badges showing connection status (Online/Offline/Idle/In Call)
 - **Fullscreen Video Modal**: Immersive video calling experience
+- **Dedicated Chat Modal**: Message modal slides in from the right, always accessible
 - **Control Buttons**: Easy-to-use connect, disconnect, and reconnect controls
 - **Mobile Optimized**: Touch-friendly interface with responsive video layouts
 
@@ -22,8 +25,8 @@ A modern, real-time video chat application built with WebRTC technology, featuri
 - **WebRTC Integration**: Uses PeerJS for simplified WebRTC implementation
 - **STUN/TURN Servers**: Reliable connection establishment across different networks
 - **Connection Management**: Robust handling of connection states and errors
-- **Browser Notifications**: Desktop notifications for connection events
 - **Visibility API**: Smart status updates based on tab visibility
+- **Single Connection Enforcement**: Prevents duplicate connections and message handlers
 
 ## 🚀 Quick Start
 
@@ -64,15 +67,22 @@ A modern, real-time video chat application built with WebRTC technology, featuri
    - If the first peer ID is unavailable, it automatically tries the second one
    - Status indicators show connection progress
 
-2. **Video Calling**
-   - Click the video call button to open the fullscreen video modal
-   - Your local video appears in the top-right corner
-   - Remote video fills the main area
+2. **Video/Audio Calling**
+   - Click the call button to open the call type selection modal
+   - Choose video or audio call
+   - The remote peer sees a ringing modal and can accept or decline
+   - Your local video appears in the top-right corner; remote video fills the main area
    - Use the disconnect button to end the call
 
-3. **Status Management**
+3. **Text Messaging**
+   - Click the chat button to open the message modal (can be used independently of calls)
+   - Messages are delivered in real time if the connection is established
+   - The message modal auto-opens when a new message is received
+
+4. **Status Management**
    - **Online**: Active and connected
    - **Idle**: Tab is hidden or inactive (15-minute timeout)
+   - **In Call**: Peer is on a call
    - **Offline**: Disconnected or unavailable
 
 ## 📁 Project Structure
@@ -80,15 +90,14 @@ A modern, real-time video chat application built with WebRTC technology, featuri
 ```
 project_chat/
 ├── index.html              # Main application interface
-├── stage1.html            # Alternative implementation
 ├── assets/
 │   ├── css/
 │   │   ├── app.min.css    # Bootstrap-based UI framework
-│   │   └── custom.css     # Custom styles for video chat
+│   │   └── custom.css     # Custom styles for video chat and chat modal
 │   ├── js/
 │   │   ├── app.min.js     # Core JavaScript framework
 │   │   └── pages/
-│   │       └── chat.js    # Chat functionality (minified)
+│   │       └── chat.js    # Chat functionality (minified, not used in main flow)
 │   ├── images/            # UI assets and avatars
 │   └── vendors/           # Third-party libraries
 └── README.md              # This file
@@ -107,9 +116,7 @@ To customize for production:
 3. Consider using a signaling server for dynamic peer discovery
 
 ### STUN/TURN Servers
-Current configuration uses:
-- Google STUN server: `stun:stun.l.google.com:19302`
-- TURN server: `turn:try-turn.vercel.app`
+Current configuration uses Metered.ca STUN/TURN servers for reliable NAT traversal.
 
 For production deployment, consider:
 - Setting up your own TURN server
@@ -120,10 +127,10 @@ For production deployment, consider:
 
 | Browser | Version | Support |
 |---------|---------|---------|
-| Chrome | 60+ | ✅ Full Support |
-| Firefox | 55+ | ✅ Full Support |
-| Safari | 11+ | ✅ Full Support |
-| Edge | 79+ | ✅ Full Support |
+| Chrome  | 60+     | ✅ Full Support |
+| Firefox | 55+     | ✅ Full Support |
+| Safari  | 11+     | ✅ Full Support |
+| Edge    | 79+     | ✅ Full Support |
 
 ## 🔒 Security Considerations
 
@@ -145,6 +152,19 @@ For production deployment, consider:
 - **Peer Logic**: Edit the JavaScript section in HTML files
 - **Video Layout**: Adjust video container styles in CSS
 - **Timeout Settings**: Modify `idleLimit` variable (currently 15 minutes)
+
+## 🛑 Limitations (Current Version)
+
+- **Two-Peer Limit**: Only two users can join and communicate in a session. No group chat or multi-party calls are supported.
+- **Static Peer IDs**: Peer IDs are hardcoded for demo/testing. No dynamic peer discovery or user registration.
+- **No Authentication**: Anyone with the peer ID can connect; there is no user authentication or authorization.
+- **No Persistent Chat**: Messages are not stored or persisted; chat is session-based only.
+- **No File Sharing**: Only text messages and media streams (audio/video) are supported.
+- **No Push Notifications**: No desktop or mobile push notifications for incoming calls/messages.
+- **No Server-Side Signaling**: PeerJS cloud server is used for signaling; not suitable for production scale or privacy.
+- **No Mobile App**: This is a web-only solution; not packaged as a native mobile app.
+- **No Screen Sharing**: Only camera/microphone streams are supported.
+- **No Recording**: No built-in call or message recording features.
 
 ## 📝 API Reference
 

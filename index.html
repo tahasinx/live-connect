@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Enlink - Admin Dashboard Template</title>
+    <title>Project Peer Media</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="assets/images/logo/favicon.png">
+    <link rel="shortcut icon" href="assets/images/logo/logo.svg">
     <link href="assets/css/app.min.css" rel="stylesheet">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,9 +66,44 @@
                             </button>
                         </div>
                         <div class="d-inline-block">
-                            <button class="btn btn-icon btn-primary btn-rounded btn-tone" title="Video Call"
-                                data-toggle="modal" data-target="#video-calling-modal">
+                            <button class="btn btn-icon btn-primary btn-rounded btn-tone" title="Make Call"
+                                id="make-call-btn">
                                 <i class="bi bi-telephone"></i>
+                            </button>
+                        </div>
+                        <div class="d-inline-block">
+                            <button class="btn btn-icon btn-info btn-rounded btn-tone" title="Send Message"
+                                id="message-btn">
+                                <i class="bi bi-chat-left-text"></i>
+                            </button>
+                        </div>
+                        <div class="d-inline-block ml-3">
+                            <span id="connection-status" class="badge badge-secondary">Connecting...</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Ringing Modal -->
+        <div class="modal fade" id="ringing-modal" tabindex="-1" role="dialog" aria-labelledby="ringingModalLabel"
+            aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-4">
+                        <div class="ringing-animation mb-3">
+                            <i class="bi bi-telephone-fill text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="modal-title mb-3" id="ringingModalLabel">Incoming Call</h5>
+                        <p class="text-muted mb-4">Remote peer is calling...</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-success btn-lg px-4" id="accept-call-btn">
+                                <i class="bi bi-telephone-fill me-2"></i> Accept
+                            </button>
+                            <button type="button" class="btn btn-danger btn-lg px-4" id="decline-call-btn">
+                                <i class="bi bi-telephone-x-fill me-2"></i> Decline
                             </button>
                         </div>
                     </div>
@@ -76,6 +111,26 @@
             </div>
         </div>
 
+        <!-- Call Type Selection Modal -->
+        <div class="modal fade" id="call-type-modal" tabindex="-1" role="dialog" aria-labelledby="callTypeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-4">
+                        <h5 class="modal-title mb-3" id="callTypeModalLabel">Select Call Type</h5>
+                        <p class="text-muted mb-4">Choose your preferred call type:</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="button" class="btn btn-primary btn-lg px-4" id="video-call-btn">
+                                <i class="bi bi-camera-video-fill me-2"></i> Video Call
+                            </button>
+                            <button type="button" class="btn btn-info btn-lg px-4" id="audio-call-btn">
+                                <i class="bi bi-mic-fill me-2"></i> Audio Call
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="modal fade" id="video-calling-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
@@ -91,22 +146,29 @@
                         <div id="video-container">
                             <video id="local-video" autoplay muted></video>
                             <video id="remote-video" autoplay></video>
+                            <div id="audio-only-indicator" class="d-none text-center">
+                                <i class="bi bi-mic-fill text-info" style="font-size: 3rem;"></i>
+                                <p class="mt-2 text-muted">Audio Call Active</p>
+                            </div>
                         </div>
 
                         <div class="w-100 text-center mt-3">
                             <div class="d-inline-block">
-                                <button class="btn btn-icon btn-danger btn-rounded btn-tone" title="Disconnect">
+                                <button id="modal-disconnect-btn" class="btn btn-icon btn-danger btn-rounded btn-tone"
+                                    title="Disconnect">
                                     <i class="bi bi-x"></i>
                                 </button>
                             </div>
                             <div class="d-inline-block">
-                                <button class="btn btn-icon btn-danger btn-rounded btn-tone" title="Audio Call">
-                                    <i class="bi bi-camera-video-off"></i>
+                                <button id="modal-reconnect-btn" class="btn btn-icon btn-success btn-rounded btn-tone"
+                                    title="Reconnect">
+                                    <i class="bi bi-arrow-clockwise"></i>
                                 </button>
                             </div>
                             <div class="d-inline-block">
-                                <button class="btn btn-icon btn-danger btn-rounded btn-tone" title="Chat">
-                                    <i class="bi bi-mic-mute"></i>
+                                <button id="toggle-audio-btn" class="btn btn-icon btn-warning btn-rounded btn-tone"
+                                    title="Toggle Audio">
+                                    <i class="bi bi-mic-fill"></i>
                                 </button>
                             </div>
                             <div class="d-inline-block">
@@ -116,46 +178,44 @@
                                 </button>
                             </div>
                         </div>
-
-                        <div class="modal modal-right fade search" id="in_chat_modal">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header justify-content-between align-items-center">
-                                        <h5 class="modal-title">Search</h5>
-                                        <button type="button" class="close" onclick="modal_toggle('in_chat_modal')">
-                                            <i class="anticon anticon-close"></i>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body scrollable" id="chat-messages">
-                                        <div class="text-center text-muted mt-3">
-                                            <small>Start chatting with your peer...</small>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer d-flex justify-content-center w-100">
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" style="border-radius:0px">
-                                                    <i class="bi bi-journal-arrow-up"></i>
-                                                </span>
-                                            </div>
-                                            <input type="text" class="form-control" id="message-input"
-                                                placeholder="Type your message..." aria-label="Message input">
-                                            <div class="input-group-append">
-                                                <button type="button" class="input-group-text" id="send-message-btn"
-                                                    style="border-radius:0px">
-                                                    <b class="bi bi-send"></b>
-                                                    &emsp13; Send
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <!-- <div class="modal-footer d-flex justify-content-center w-100">
                         
                     </div> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="in_chat_modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-between align-items-center">
+                        <h5 class="modal-title"><i class="bi bi-chat-left-text"></i> Chat</h5>
+                        <button type="button" class="btn btn-icon btn-danger btn-rounded btn-tone" onclick="modal_toggle('in_chat_modal')">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body p-0 d-flex flex-column" style="flex:1; min-height:0;">
+                        <div id="chat-messages" class="flex-grow-1 overflow-auto p-3" style="min-height:0;"></div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center w-100">
+                        <div class="input-group mb-3">
+                            <!-- <div class="input-group-prepend">
+                                <span class="input-group-text" style="border-radius:0px">
+                                    <i class="bi bi-journal-arrow-up"></i>
+                                </span>
+                            </div> -->
+                            <input type="text" class="form-control" id="message-input"
+                                placeholder="Type your message..." aria-label="Message input">
+                            <div class="input-group-append">
+                                <button type="button" class="input-group-text" id="send-message-btn"
+                                    style="border-radius:0px">
+                                    <b class="bi bi-send"></b>
+                                    &emsp13; Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -178,11 +238,24 @@
         let peer = null;
         let connection = null;
         let currentCall = null;
+        let incomingCall = null;
+        let callType = 'video'; // 'video' or 'audio'
 
         const localVideo = document.getElementById('local-video');
         const mainVideo = document.getElementById('remote-video');
         const disconnectBtn = document.getElementById('disconnect-btn');
         const reconnectBtn = document.getElementById('reconnect-btn');
+        const acceptCallBtn = document.getElementById('accept-call-btn');
+        const declineCallBtn = document.getElementById('decline-call-btn');
+        const videoCallBtn = document.getElementById('video-call-btn');
+        const audioCallBtn = document.getElementById('audio-call-btn');
+        const makeCallBtn = document.getElementById('make-call-btn');
+        const messageBtn = document.getElementById('message-btn');
+        const connectionStatus = document.getElementById('connection-status');
+        const audioOnlyIndicator = document.getElementById('audio-only-indicator');
+        const modalDisconnectBtn = document.getElementById('modal-disconnect-btn');
+        const modalReconnectBtn = document.getElementById('modal-reconnect-btn');
+        const toggleAudioBtn = document.getElementById('toggle-audio-btn');
 
         const peerStatus = {
             [peerId1]: 'offline',
@@ -209,7 +282,64 @@
             { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: "6ed4d24ab2e8604c7bdabb8e", credential: "LzTqOJjNlKdD67pv" }
         ];
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        // Modal toggle function
+        function modal_toggle(id) {
+            console.log('Opening modal:', id);
+            const modalElement = document.getElementById(id);
+            if (modalElement) {
+                console.log('Modal element found:', modalElement);
+                console.log('Modal classes:', modalElement.className);
+                console.log('Modal display style:', modalElement.style.display);
+                console.log('Modal visibility:', modalElement.style.visibility);
+
+                try {
+                    // Try Bootstrap modal first
+                    $('#' + id).modal('toggle');
+                    console.log('Bootstrap modal show called');
+                } catch (error) {
+                    console.error('Bootstrap modal error:', error);
+                    // Fallback to manual show
+                    modalElement.style.display = 'block';
+                    modalElement.classList.add('show');
+                    console.log('Manual modal show applied');
+                }
+            } else {
+                console.error('Modal element not found:', id);
+            }
+        }
+
+        // Test function for debugging
+        window.testModal = function () {
+            console.log('Testing modal manually...');
+            modal_toggle('in_chat_modal');
+        };
+
+        // Function to get media stream based on call type
+        async function getMediaStream(type) {
+            try {
+                if (type === 'video') {
+                    return await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                } else {
+                    return await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+            } catch (err) {
+                console.error('Failed to get media:', err);
+                // Fallback to audio only if video fails
+                if (type === 'video') {
+                    console.log('Falling back to audio only');
+                    try {
+                        return await navigator.mediaDevices.getUserMedia({ audio: true });
+                    } catch (audioErr) {
+                        console.error('Failed to get audio:', audioErr);
+                        throw audioErr;
+                    }
+                }
+                throw err;
+            }
+        }
+
+        // Initialize with video stream
+        getMediaStream('video')
             .then(stream => {
                 localVideo.srcObject = stream;
 
@@ -225,27 +355,24 @@
                     peer = new Peer(id, { config: { iceServers } });
 
                     peer.on('connection', conn => {
+                        if (connection && connection.open) {
+                            // Already have a connection, close the new one
+                            conn.close();
+                            return;
+                        }
                         connection = conn;
                         conn.on('open', () => {
                             console.log('Connection established with ' + conn.peer);
                             disconnectBtn.classList.remove('d-none');
                             reconnectBtn.classList.add('d-none');
                             resetIdleTimeout(); // Reset the idle timeout when the connection is established
-
-                            // Open the modal for both users
-                            console.log('Opening modal');
-                            setTimeout(() => {
-                                modal_toggle('video-calling-modal');
-                            }, 100); // Small delay to ensure modal displays correctly
+                            console.log('Connection ready - user can now make calls');
                         });
-
                         conn.on('data', (data) => {
                             console.log('Received data:', data);
                             if (data.type === 'status-update') {
                                 peerStatus[data.peerID] = data.status;
                                 updateStatus(data.peerID, data.status === 'online' ? 'Online' : 'Idle', data.status === 'online' ? 'success' : 'warning');
-                            } else if (data.type === 'chat-message') {
-                                handleIncomingMessage(data);
                             }
                         });
                         conn.on('close', () => {
@@ -264,37 +391,113 @@
                         updateStatus(peerId, 'Online', 'success');
                         remotePeerId = (peerId === peerId1) ? peerId2 : peerId1;
 
+                        // Update connection status
+                        connectionStatus.textContent = 'Connecting...';
+                        connectionStatus.className = 'badge badge-warning';
+
                         // Try connecting to the remote peer
                         tryConnectToRemotePeer();
 
-                        // Automatically call the remote peer if current peer is peerId2
-                        if (peerId === peerId2) {
-                            console.log('Calling remote peer ' + remotePeerId);
-                            const call = peer.call(remotePeerId, stream);
-                            currentCall = call;
-                            call.on('stream', remoteStream => {
-                                console.log('Received remote stream');
-                                mainVideo.srcObject = remoteStream;
-                            });
-                            call.on('error', err => {
-                                console.error('Call error:', err);
-                            });
-                        }
+                        // Don't automatically call - wait for user to initiate call
+                        console.log('Ready to make or receive calls');
                     });
 
                     peer.on('call', call => {
                         if (!remotePeerId) {
                             remotePeerId = call.peer;
                         }
-                        console.log('Answering call from ' + remotePeerId);
-                        call.answer(stream);
-                        currentCall = call;
-                        call.on('stream', remoteStream => {
-                            console.log('Received remote stream from ' + call.peer);
-                            mainVideo.srcObject = remoteStream;
-                        });
-                        call.on('error', err => {
-                            console.error('Call error:', err);
+                        console.log('Incoming call from ' + remotePeerId);
+                        incomingCall = call;
+
+                        // Show ringing modal
+                        $('#ringing-modal').modal('show');
+                    });
+
+                    peer.on('connection', conn => {
+                        console.log('Incoming connection from ' + conn.peer);
+                        // Handle incoming connection
+                        conn.on('open', () => {
+                            console.log('Incoming connection opened with ' + conn.peer);
+                            connection = conn;
+                            remotePeerId = conn.peer;
+
+                            // Update connection status
+                            connectionStatus.textContent = 'Connected';
+                            connectionStatus.className = 'badge badge-success';
+                            disconnectBtn.classList.remove('d-none');
+                            reconnectBtn.classList.add('d-none');
+
+                            // Set up data handler for incoming connection
+                            conn.on('data', (data) => {
+                                console.log('Received data from incoming connection:', data);
+                                if (data.type === 'status-update') {
+                                    peerStatus[data.peerID] = data.status;
+                                    if (data.status === 'active') {
+                                        updateStatus(data.peerID, 'In Call', 'info');
+                                    } else if (data.status === 'online') {
+                                        updateStatus(data.peerID, 'Online', 'success');
+                                    } else if (data.status === 'idle') {
+                                        updateStatus(data.peerID, 'Idle', 'warning');
+                                    }
+                                } else if (data.type === 'connection-established') {
+                                    console.log('Connection established with peer:', data.peerID);
+                                    // Send acknowledgment back
+                                    conn.send({
+                                        type: 'connection-acknowledged',
+                                        peerID: currentPeerId,
+                                        timestamp: Date.now()
+                                    });
+                                } else if (data.type === 'connection-acknowledged') {
+                                    console.log('Connection acknowledged by peer:', data.peerID);
+                                } else if (data.type === 'status-request') {
+                                    console.log('Status request from peer:', data.peerID);
+                                    // Send current status back
+                                    conn.send({
+                                        type: 'status-update',
+                                        peerID: currentPeerId,
+                                        status: peerStatus[currentPeerId] || 'online'
+                                    });
+                                } else if (data.type === 'chat-message') {
+                                    handleIncomingMessage(data);
+                                } else if (data.type === 'call-declined') {
+                                    console.log('Call was declined by peer');
+                                    // Close any open modals
+                                    $('#ringing-modal').modal('hide');
+                                    $('#call-type-modal').modal('hide');
+                                    $('#video-calling-modal').modal('hide');
+                                }
+                            });
+
+                            conn.on('close', () => {
+                                console.log('Incoming connection closed with ' + conn.peer);
+                                peerStatus[conn.peer] = 'offline';
+                                updateStatus(conn.peer, 'Offline', 'danger');
+                                disconnectBtn.classList.add('d-none');
+                                reconnectBtn.classList.remove('d-none');
+
+                                // Update connection status
+                                connectionStatus.textContent = 'Disconnected';
+                                connectionStatus.className = 'badge badge-danger';
+                            });
+
+                            // Send connection acknowledgment
+                            conn.send({
+                                type: 'connection-established',
+                                peerID: currentPeerId,
+                                timestamp: Date.now()
+                            });
+
+                            // Sync connection status after a short delay
+                            setTimeout(() => {
+                                syncConnectionStatus();
+                            }, 500);
+
+                            // Set up periodic status sync
+                            setInterval(() => {
+                                if (connection && connection.open) {
+                                    syncConnectionStatus();
+                                }
+                            }, 30000); // Sync every 30 seconds
                         });
                     });
 
@@ -307,11 +510,19 @@
                                 alert('Room is full');
                             }
                         }
+
+                        // Update connection status on error
+                        connectionStatus.textContent = 'Error';
+                        connectionStatus.className = 'badge badge-danger';
                     });
 
                     peer.on('disconnected', () => {
                         console.log('Peer disconnected');
                         handleDisconnection();
+
+                        // Update connection status
+                        connectionStatus.textContent = 'Disconnected';
+                        connectionStatus.className = 'badge badge-danger';
                     });
 
                     window.addEventListener('beforeunload', () => {
@@ -324,6 +535,12 @@
                 async function tryConnectToRemotePeer() {
                     if (!remotePeerId) return;
 
+                    // Don't create duplicate connections
+                    if (connection && connection.open) {
+                        console.log('Connection already exists, skipping duplicate connection');
+                        return;
+                    }
+
                     const conn = peer.connect(remotePeerId);
                     conn.on('open', () => {
                         console.log('Connection established with ' + remotePeerId);
@@ -334,20 +551,76 @@
                         reconnectBtn.classList.add('d-none');
                         resetIdleTimeout(); // Reset the idle timeout when the connection is established
 
-                        // Open the modal for both users
-                        console.log('Opening modal');
+                        // Update connection status
+                        connectionStatus.textContent = 'Connected';
+                        connectionStatus.className = 'badge badge-success';
+
+                        // Send connection acknowledgment to remote peer
+                        conn.send({
+                            type: 'connection-established',
+                            peerID: currentPeerId,
+                            timestamp: Date.now()
+                        });
+
+                        // Sync connection status after a short delay
                         setTimeout(() => {
-                            modal_toggle('video-calling-modal');
-                        }, 100); // Small delay to ensure modal displays correctly
+                            syncConnectionStatus();
+                        }, 500);
+
+                        // Set up periodic status sync
+                        setInterval(() => {
+                            if (connection && connection.open) {
+                                syncConnectionStatus();
+                            }
+                        }, 30000); // Sync every 30 seconds
+
+                        // Don't automatically open modal - wait for user to initiate call
+                        console.log('Connection ready - user can now make calls');
                     });
 
                     conn.on('data', (data) => {
                         console.log('Received data:', data);
                         if (data.type === 'status-update') {
                             peerStatus[data.peerID] = data.status;
-                            updateStatus(data.peerID, data.status === 'online' ? 'Online' : 'Idle', data.status === 'online' ? 'success' : 'warning');
+                            if (data.status === 'active') {
+                                updateStatus(data.peerID, 'In Call', 'info');
+                            } else if (data.status === 'online') {
+                                updateStatus(data.peerID, 'Online', 'success');
+                            } else if (data.status === 'idle') {
+                                updateStatus(data.peerID, 'Idle', 'warning');
+                            }
+                        } else if (data.type === 'connection-established') {
+                            console.log('Connection established with peer:', data.peerID);
+                            // Update local connection status when remote peer confirms connection
+                            connectionStatus.textContent = 'Connected';
+                            connectionStatus.className = 'badge badge-success';
+                            disconnectBtn.classList.remove('d-none');
+                            reconnectBtn.classList.add('d-none');
+
+                            // Send acknowledgment back
+                            conn.send({
+                                type: 'connection-acknowledged',
+                                peerID: currentPeerId,
+                                timestamp: Date.now()
+                            });
+                        } else if (data.type === 'connection-acknowledged') {
+                            console.log('Connection acknowledged by peer:', data.peerID);
+                        } else if (data.type === 'status-request') {
+                            console.log('Status request from peer:', data.peerID);
+                            // Send current status back
+                            conn.send({
+                                type: 'status-update',
+                                peerID: currentPeerId,
+                                status: peerStatus[currentPeerId] || 'online'
+                            });
                         } else if (data.type === 'chat-message') {
                             handleIncomingMessage(data);
+                        } else if (data.type === 'call-declined') {
+                            console.log('Call was declined by peer');
+                            // Close any open modals
+                            $('#ringing-modal').modal('hide');
+                            $('#call-type-modal').modal('hide');
+                            $('#video-calling-modal').modal('hide');
                         }
                     });
                     conn.on('close', () => {
@@ -356,6 +629,10 @@
                         updateStatus(remotePeerId, 'Offline', 'danger');
                         disconnectBtn.classList.add('d-none');
                         reconnectBtn.classList.remove('d-none');
+
+                        // Update connection status
+                        connectionStatus.textContent = 'Disconnected';
+                        connectionStatus.className = 'badge badge-danger';
                     });
                 }
 
@@ -428,6 +705,10 @@
                     if (peer) {
                         peer.destroy(); // Ensure the peer instance is properly destroyed
                     }
+
+                    // Update connection status
+                    connectionStatus.textContent = 'Disconnected';
+                    connectionStatus.className = 'badge badge-danger';
                 }
 
                 function notifyPeers(status) {
@@ -437,11 +718,38 @@
                             peerID: currentPeerId,
                             status: status
                         });
+                        console.log('Notified peers of status change:', status);
                     }
                 }
 
-                function modal_toggle(id) {
-                    $('#' + id).modal('toggle');
+                function syncConnectionStatus() {
+                    if (connection && connection.open) {
+                        // Show syncing status briefly
+                        connectionStatus.textContent = 'Syncing...';
+                        connectionStatus.className = 'badge badge-warning';
+
+                        // Send current status to peer
+                        connection.send({
+                            type: 'status-update',
+                            peerID: currentPeerId,
+                            status: peerStatus[currentPeerId] || 'online'
+                        });
+
+                        // Request peer status
+                        connection.send({
+                            type: 'status-request',
+                            peerID: currentPeerId,
+                            timestamp: Date.now()
+                        });
+
+                        // Reset to connected status after sync
+                        setTimeout(() => {
+                            if (connection && connection.open) {
+                                connectionStatus.textContent = 'Connected';
+                                connectionStatus.className = 'badge badge-success';
+                            }
+                        }, 1000);
+                    }
                 }
 
                 // Text messaging functionality
@@ -490,6 +798,43 @@
                     return div.innerHTML;
                 }
 
+                function updateCallUI(type) {
+                    if (type === 'audio') {
+                        localVideo.style.display = 'none';
+                        mainVideo.style.display = 'none';
+                        audioOnlyIndicator.classList.remove('d-none');
+                    } else {
+                        localVideo.style.display = 'block';
+                        mainVideo.style.display = 'block';
+                        audioOnlyIndicator.classList.add('d-none');
+                    }
+
+                    // Show action buttons when call is active
+                    modalDisconnectBtn.style.display = 'inline-block';
+                    modalReconnectBtn.style.display = 'inline-block';
+                    toggleAudioBtn.style.display = 'inline-block';
+                }
+
+                function hideCallActionButtons() {
+                    modalDisconnectBtn.style.display = 'none';
+                    modalReconnectBtn.style.display = 'none';
+                    toggleAudioBtn.style.display = 'none';
+                }
+
+                function handleCallEnd() {
+                    currentCall = null;
+                    hideCallActionButtons();
+                    $('#video-calling-modal').modal('hide');
+
+                    // Reset status to online
+                    peerStatus[currentPeerId] = 'online';
+                    updateStatus(currentPeerId, 'Online', 'success');
+                    notifyPeers('online');
+
+                    // Reset idle timeout since user is active
+                    resetIdleTimeout();
+                }
+
                 // Event listeners for messaging
                 sendMessageBtn.addEventListener('click', sendMessage);
                 messageInput.addEventListener('keypress', (e) => {
@@ -502,11 +847,15 @@
                 function handleIncomingMessage(data) {
                     if (data.type === 'chat-message') {
                         addMessageToChat(data.message, 'Peer', 'received');
+                        $('#in_chat_modal').modal('show');
                     }
                 }
 
                 // Start with current user as peerId1
                 setupPeer(peerId1);
+
+                // Hide call action buttons by default
+                hideCallActionButtons();
 
                 disconnectBtn.addEventListener('click', () => {
                     handleDisconnection();
@@ -515,6 +864,259 @@
                 reconnectBtn.addEventListener('click', () => {
                     reconnectBtn.classList.add('d-none');
                     setupPeer(currentPeerId); // Reconnect with the same peer ID
+                });
+
+                // Ringing modal event handlers
+                acceptCallBtn.addEventListener('click', async () => {
+                    if (incomingCall) {
+                        $('#ringing-modal').modal('hide');
+
+                        try {
+                            // Get media stream based on current call type
+                            const stream = await getMediaStream(callType);
+                            localVideo.srcObject = stream;
+
+                            // Answer the call
+                            incomingCall.answer(stream);
+                            currentCall = incomingCall;
+
+                            // Update status to active
+                            peerStatus[currentPeerId] = 'active';
+                            updateStatus(currentPeerId, 'In Call', 'info');
+                            notifyPeers('active');
+                            resetIdleTimeout(); // Reset idle timeout when call starts
+
+                            // Set up call event handlers
+                            incomingCall.on('stream', remoteStream => {
+                                console.log('Received remote stream from ' + incomingCall.peer);
+                                mainVideo.srcObject = remoteStream;
+                            });
+
+                            incomingCall.on('error', err => {
+                                console.error('Call error:', err);
+                                handleCallEnd();
+                            });
+
+                            incomingCall.on('close', () => {
+                                console.log('Call ended');
+                                handleCallEnd();
+                            });
+
+                            // Update UI based on call type
+                            updateCallUI(callType);
+
+                            // Show video call modal
+                            $('#video-calling-modal').modal('show');
+
+                        } catch (err) {
+                            console.error('Failed to get media for call:', err);
+                            alert('Failed to start call. Please check your camera/microphone permissions.');
+                            // Reset status if call fails
+                            peerStatus[currentPeerId] = 'online';
+                            updateStatus(currentPeerId, 'Online', 'success');
+                            notifyPeers('online');
+                        }
+
+                        incomingCall = null;
+                    }
+                });
+
+                declineCallBtn.addEventListener('click', () => {
+                    if (incomingCall) {
+                        incomingCall.close();
+                        incomingCall = null;
+                        $('#ringing-modal').modal('hide');
+
+                        // Notify peer that call was declined
+                        if (connection && connection.open) {
+                            connection.send({
+                                type: 'call-declined',
+                                peerID: currentPeerId
+                            });
+                        }
+                    }
+                });
+
+                // Call type selection event handlers
+                videoCallBtn.addEventListener('click', async () => {
+                    callType = 'video';
+                    $('#call-type-modal').modal('hide');
+
+                    try {
+                        const stream = await getMediaStream('video');
+                        localVideo.srcObject = stream;
+
+                        // Make the call
+                        if (remotePeerId && peer) {
+                            const call = peer.call(remotePeerId, stream);
+                            currentCall = call;
+
+                            // Update status to active
+                            peerStatus[currentPeerId] = 'active';
+                            updateStatus(currentPeerId, 'In Call', 'info');
+                            notifyPeers('active');
+                            resetIdleTimeout(); // Reset idle timeout when call starts
+
+                            call.on('stream', remoteStream => {
+                                console.log('Received remote stream');
+                                mainVideo.srcObject = remoteStream;
+                            });
+
+                            call.on('error', err => {
+                                console.error('Call error:', err);
+                                handleCallEnd();
+                            });
+
+                            call.on('close', () => {
+                                console.log('Call ended');
+                                handleCallEnd();
+                            });
+
+                            // Update UI based on call type
+                            updateCallUI(callType);
+
+                            // Show video call modal
+                            $('#video-calling-modal').modal('show');
+                        }
+                    } catch (err) {
+                        console.error('Failed to start video call:', err);
+                        alert('Failed to start video call. Please check your camera permissions.');
+                        // Reset status if call fails
+                        peerStatus[currentPeerId] = 'online';
+                        updateStatus(currentPeerId, 'Online', 'success');
+                        notifyPeers('online');
+                    }
+                });
+
+                audioCallBtn.addEventListener('click', async () => {
+                    callType = 'audio';
+                    $('#call-type-modal').modal('hide');
+
+                    try {
+                        const stream = await getMediaStream('audio');
+                        localVideo.srcObject = stream;
+
+                        // Make the call
+                        if (remotePeerId && peer) {
+                            const call = peer.call(remotePeerId, stream);
+                            currentCall = call;
+
+                            // Update status to active
+                            peerStatus[currentPeerId] = 'active';
+                            updateStatus(currentPeerId, 'In Call', 'info');
+                            notifyPeers('active');
+                            resetIdleTimeout(); // Reset idle timeout when call starts
+
+                            call.on('stream', remoteStream => {
+                                console.log('Received remote stream');
+                                mainVideo.srcObject = remoteStream;
+                            });
+
+                            call.on('error', err => {
+                                console.error('Call error:', err);
+                                handleCallEnd();
+                            });
+
+                            call.on('close', () => {
+                                console.log('Call ended');
+                                handleCallEnd();
+                            });
+
+                            // Update UI based on call type
+                            updateCallUI(callType);
+
+                            // Show video call modal (will show audio interface)
+                            $('#video-calling-modal').modal('show');
+                        }
+                    } catch (err) {
+                        console.error('Failed to start audio call:', err);
+                        alert('Failed to start audio call. Please check your microphone permissions.');
+                        // Reset status if call fails
+                        peerStatus[currentPeerId] = 'online';
+                        updateStatus(currentPeerId, 'Online', 'success');
+                        notifyPeers('online');
+                    }
+                });
+
+                // Make call button event handler
+                makeCallBtn.addEventListener('click', () => {
+                    if (remotePeerId && peer && connection && connection.open) {
+                        $('#call-type-modal').modal('show');
+                    } else {
+                        alert('Please wait for connection to be established.');
+                    }
+                });
+
+                // Message button event handler
+                messageBtn.addEventListener('click', () => {
+                    console.log('Message button clicked');
+                    console.log('remotePeerId:', remotePeerId);
+                    console.log('peer:', peer);
+                    console.log('connection:', connection);
+                    console.log('connection.open:', connection ? connection.open : 'no connection');
+
+                    if (remotePeerId && peer && connection && connection.open) {
+                        console.log('Opening chat modal...');
+                        modal_toggle('in_chat_modal');
+                    } else {
+                        console.log('Cannot open modal - connection not ready');
+                        alert('Please wait for connection to be established.');
+                    }
+                });
+
+                // Modal action button event handlers
+                modalDisconnectBtn.addEventListener('click', () => {
+                    if (currentCall) {
+                        currentCall.close();
+                        currentCall = null;
+                    }
+                    handleCallEnd();
+                });
+
+                modalReconnectBtn.addEventListener('click', async () => {
+                    try {
+                        const stream = await getMediaStream(callType);
+                        localVideo.srcObject = stream;
+
+                        if (remotePeerId && peer) {
+                            const call = peer.call(remotePeerId, stream);
+                            currentCall = call;
+
+                            call.on('stream', remoteStream => {
+                                console.log('Received remote stream');
+                                mainVideo.srcObject = remoteStream;
+                            });
+
+                            call.on('error', err => {
+                                console.error('Call error:', err);
+                            });
+
+                            call.on('close', () => {
+                                console.log('Call ended');
+                                handleCallEnd();
+                            });
+                        }
+                    } catch (err) {
+                        console.error('Failed to reconnect:', err);
+                        alert('Failed to reconnect. Please check your media permissions.');
+                    }
+                });
+
+                toggleAudioBtn.addEventListener('click', () => {
+                    if (localVideo.srcObject) {
+                        const audioTrack = localVideo.srcObject.getAudioTracks()[0];
+                        if (audioTrack) {
+                            audioTrack.enabled = !audioTrack.enabled;
+                            const icon = toggleAudioBtn.querySelector('i');
+                            if (audioTrack.enabled) {
+                                icon.className = 'bi bi-mic-fill';
+                                toggleAudioBtn.title = 'Mute Audio';
+                            } else {
+                                icon.className = 'bi bi-mic-mute-fill';
+                                toggleAudioBtn.title = 'Unmute Audio';
+                            }
+                        }
+                    }
                 });
 
             })
