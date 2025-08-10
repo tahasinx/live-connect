@@ -844,11 +844,26 @@
                 }
 
                 function handleCallEnd() {
+                    // Properly close the call if it exists
+                    if (currentCall) {
+                        try { currentCall.close(); } catch (e) { console.warn('Call already closed or error:', e); }
+                    }
                     currentCall = null;
                     hideCallActionButtons();
-                    // Hide video and audio call modals on disconnect
+                    // Hide the call modal
                     $('#video-calling-modal').modal('hide');
-                    $('#audio-calling-modal').modal && $('#audio-calling-modal').modal('hide'); // In case you have a separate audio modal
+                    // Reset video/audio UI
+                    if (localVideo) {
+                        localVideo.srcObject = null;
+                        localVideo.style.display = 'none';
+                    }
+                    if (mainVideo) {
+                        mainVideo.srcObject = null;
+                        mainVideo.style.display = 'none';
+                    }
+                    if (audioOnlyIndicator) {
+                        audioOnlyIndicator.classList.add('d-none');
+                    }
                     // Reset status to online
                     peerStatus[currentPeerId] = 'online';
                     updateStatus(currentPeerId, 'Online', 'success');
@@ -889,57 +904,44 @@
                 });
 
                 // Ringing modal event handlers
+                // When answering a call (callee)
                 acceptCallBtn.addEventListener('click', async () => {
                     stopRingtone();
                     if (incomingCall) {
                         $('#ringing-modal').modal('hide');
-
                         try {
-                            // Get media stream based on current call type
                             const stream = await getMediaStream(callType);
                             localVideo.srcObject = stream;
-
-                            // Answer the call
+                            localVideo.muted = true; // Mute local video to prevent echo
+                            localVideo.style.display = 'block';
+                            mainVideo.style.display = 'block';
                             incomingCall.answer(stream);
                             currentCall = incomingCall;
-
-                            // Update status to active
                             peerStatus[currentPeerId] = 'active';
                             updateStatus(currentPeerId, 'In Call', 'info');
                             notifyPeers('active');
                             resetIdleTimeout(); // Reset idle timeout when call starts
-
-                            // Set up call event handlers
                             incomingCall.on('stream', remoteStream => {
-                                console.log('Received remote stream from ' + incomingCall.peer);
                                 mainVideo.srcObject = remoteStream;
+                                mainVideo.muted = false;
+                                mainVideo.style.display = 'block';
                             });
-
                             incomingCall.on('error', err => {
                                 console.error('Call error:', err);
                                 handleCallEnd();
                             });
-
                             incomingCall.on('close', () => {
-                                console.log('Call ended');
                                 handleCallEnd();
                             });
-
-                            // Update UI based on call type
                             updateCallUI(callType);
-
-                            // Show video call modal
                             $('#video-calling-modal').modal('show');
-
                         } catch (err) {
                             console.error('Failed to get media for call:', err);
                             alert('Failed to start call. Please check your camera/microphone permissions.');
-                            // Reset status if call fails
                             peerStatus[currentPeerId] = 'online';
                             updateStatus(currentPeerId, 'Online', 'success');
                             notifyPeers('online');
                         }
-
                         incomingCall = null;
                     }
                 });
@@ -961,100 +963,84 @@
                 });
 
                 // Call type selection event handlers
+                // When making a call (caller)
                 videoCallBtn.addEventListener('click', async () => {
                     callType = 'video';
                     $('#call-type-modal').modal('hide');
-
                     try {
                         const stream = await getMediaStream('video');
                         localVideo.srcObject = stream;
-
+                        localVideo.muted = true; // Mute local video to prevent echo
+                        localVideo.style.display = 'block';
+                        mainVideo.style.display = 'block';
                         // Make the call
                         if (remotePeerId && peer) {
                             const call = peer.call(remotePeerId, stream);
                             currentCall = call;
-
                             // Update status to active
                             peerStatus[currentPeerId] = 'active';
                             updateStatus(currentPeerId, 'In Call', 'info');
                             notifyPeers('active');
                             resetIdleTimeout(); // Reset idle timeout when call starts
-
                             call.on('stream', remoteStream => {
-                                console.log('Received remote stream');
                                 mainVideo.srcObject = remoteStream;
+                                mainVideo.muted = false;
+                                mainVideo.style.display = 'block';
                             });
-
                             call.on('error', err => {
                                 console.error('Call error:', err);
                                 handleCallEnd();
                             });
-
                             call.on('close', () => {
-                                console.log('Call ended');
                                 handleCallEnd();
                             });
-
-                            // Update UI based on call type
                             updateCallUI(callType);
-
-                            // Show video call modal
                             $('#video-calling-modal').modal('show');
                         }
                     } catch (err) {
                         console.error('Failed to start video call:', err);
                         alert('Failed to start video call. Please check your camera permissions.');
-                        // Reset status if call fails
                         peerStatus[currentPeerId] = 'online';
                         updateStatus(currentPeerId, 'Online', 'success');
                         notifyPeers('online');
                     }
                 });
 
+                // When making an audio call (caller)
                 audioCallBtn.addEventListener('click', async () => {
                     callType = 'audio';
                     $('#call-type-modal').modal('hide');
-
                     try {
                         const stream = await getMediaStream('audio');
                         localVideo.srcObject = stream;
-
-                        // Make the call
+                        localVideo.muted = true;
+                        localVideo.style.display = 'block';
+                        mainVideo.style.display = 'block';
                         if (remotePeerId && peer) {
                             const call = peer.call(remotePeerId, stream);
                             currentCall = call;
-
-                            // Update status to active
                             peerStatus[currentPeerId] = 'active';
                             updateStatus(currentPeerId, 'In Call', 'info');
                             notifyPeers('active');
-                            resetIdleTimeout(); // Reset idle timeout when call starts
-
+                            resetIdleTimeout();
                             call.on('stream', remoteStream => {
-                                console.log('Received remote stream');
                                 mainVideo.srcObject = remoteStream;
+                                mainVideo.muted = false;
+                                mainVideo.style.display = 'block';
                             });
-
                             call.on('error', err => {
                                 console.error('Call error:', err);
                                 handleCallEnd();
                             });
-
                             call.on('close', () => {
-                                console.log('Call ended');
                                 handleCallEnd();
                             });
-
-                            // Update UI based on call type
                             updateCallUI(callType);
-
-                            // Show video call modal (will show audio interface)
                             $('#video-calling-modal').modal('show');
                         }
                     } catch (err) {
                         console.error('Failed to start audio call:', err);
                         alert('Failed to start audio call. Please check your microphone permissions.');
-                        // Reset status if call fails
                         peerStatus[currentPeerId] = 'online';
                         updateStatus(currentPeerId, 'Online', 'success');
                         notifyPeers('online');
