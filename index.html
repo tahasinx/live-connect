@@ -421,6 +421,8 @@
                         }
                         console.log('Incoming call from ' + remotePeerId);
                         incomingCall = call;
+                        // Set callType from metadata
+                        callType = (call.metadata && call.metadata.type) ? call.metadata.type : 'video';
                         // Play ringing sound
                         playRingtone();
                         // Show ringing modal
@@ -913,8 +915,13 @@
                             const stream = await getMediaStream(callType);
                             localVideo.srcObject = stream;
                             localVideo.muted = true; // Mute local video to prevent echo
-                            localVideo.style.display = 'block';
-                            mainVideo.style.display = 'block';
+                            if (callType === 'audio') {
+                                localVideo.style.display = 'none';
+                                mainVideo.style.display = 'none';
+                            } else {
+                                localVideo.style.display = 'block';
+                                mainVideo.style.display = 'block';
+                            }
                             incomingCall.answer(stream);
                             currentCall = incomingCall;
                             peerStatus[currentPeerId] = 'active';
@@ -924,7 +931,11 @@
                             incomingCall.on('stream', remoteStream => {
                                 mainVideo.srcObject = remoteStream;
                                 mainVideo.muted = false;
-                                mainVideo.style.display = 'block';
+                                if (callType === 'audio') {
+                                    mainVideo.style.display = 'none';
+                                } else {
+                                    mainVideo.style.display = 'block';
+                                }
                             });
                             incomingCall.on('error', err => {
                                 console.error('Call error:', err);
@@ -975,7 +986,7 @@
                         mainVideo.style.display = 'block';
                         // Make the call
                         if (remotePeerId && peer) {
-                            const call = peer.call(remotePeerId, stream);
+                            const call = peer.call(remotePeerId, stream, { metadata: { type: 'video' } });
                             currentCall = call;
                             // Update status to active
                             peerStatus[currentPeerId] = 'active';
@@ -1014,19 +1025,21 @@
                         const stream = await getMediaStream('audio');
                         localVideo.srcObject = stream;
                         localVideo.muted = true;
-                        localVideo.style.display = 'block';
-                        mainVideo.style.display = 'block';
+                        // Hide video elements for audio call
+                        localVideo.style.display = 'none';
+                        mainVideo.style.display = 'none';
                         if (remotePeerId && peer) {
-                            const call = peer.call(remotePeerId, stream);
+                            const call = peer.call(remotePeerId, stream, { metadata: { type: 'audio' } });
                             currentCall = call;
                             peerStatus[currentPeerId] = 'active';
                             updateStatus(currentPeerId, 'In Call', 'info');
                             notifyPeers('active');
                             resetIdleTimeout();
                             call.on('stream', remoteStream => {
+                                // For audio call, do not show video
                                 mainVideo.srcObject = remoteStream;
                                 mainVideo.muted = false;
-                                mainVideo.style.display = 'block';
+                                mainVideo.style.display = 'none';
                             });
                             call.on('error', err => {
                                 console.error('Call error:', err);
