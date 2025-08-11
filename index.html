@@ -852,10 +852,13 @@
                     }
                     currentCall = null;
                     hideCallActionButtons();
-                    // Hide the call modal
+                    // Hide all call-related modals
                     $('#video-calling-modal').modal('hide');
-                    // Reset video/audio UI
-                    if (localVideo) {
+                    $('#ringing-modal').modal('hide');
+                    $('#call-type-modal').modal('hide');
+                    // Stop and release local media stream
+                    if (localVideo && localVideo.srcObject) {
+                        localVideo.srcObject.getTracks().forEach(track => track.stop());
                         localVideo.srcObject = null;
                         localVideo.style.display = 'none';
                     }
@@ -979,6 +982,7 @@
                     callType = 'video';
                     $('#call-type-modal').modal('hide');
                     try {
+                        // Always request a new stream
                         const stream = await getMediaStream('video');
                         localVideo.srcObject = stream;
                         localVideo.muted = true; // Mute local video to prevent echo
@@ -1022,6 +1026,7 @@
                     callType = 'audio';
                     $('#call-type-modal').modal('hide');
                     try {
+                        // Always request a new stream
                         const stream = await getMediaStream('audio');
                         localVideo.srcObject = stream;
                         localVideo.muted = true;
