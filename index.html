@@ -875,6 +875,14 @@
                     notifyPeers('online'); // Ensure remote peer also updates status
                     // Reset idle timeout since user is active
                     resetIdleTimeout();
+
+                    if (connection && connection.open) {
+                        connection.send({
+                            type: 'call-ended',
+                            sender: currentPeerId,
+                            timestamp: new Date().toLocaleTimeString()
+                        });
+                    }
                 }
 
                 // Event listeners for messaging
@@ -887,6 +895,12 @@
 
                 // Handle incoming messages
                 function handleIncomingMessage(data) {
+                    if (data.type === 'call-ended') {
+                        $('#video-calling-modal').modal('hide');
+                        $('#ringing-modal').modal('hide');
+                        $('#call-type-modal').modal('hide');
+                        return;
+                    }
                     if (data.type === 'chat-message') {
                         addMessageToChat(data.message, 'Peer', 'received');
                         $('#in_chat_modal').modal('show');
