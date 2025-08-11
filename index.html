@@ -883,6 +883,13 @@
                             timestamp: new Date().toLocaleTimeString()
                         });
                     }
+
+                    if (connection && connection.open) {
+                        connection.send({
+                            type: 'call-declined',
+                            peerID: currentPeerId
+                        });
+                    }
                 }
 
                 // Event listeners for messaging
@@ -896,6 +903,7 @@
                 // Handle incoming messages
                 function handleIncomingMessage(data) {
                     if (data.type === 'call-ended') {
+                        console.log('Call-ended by peer');
                         $('#video-calling-modal').modal('hide');
                         $('#ringing-modal').modal('hide');
                         $('#call-type-modal').modal('hide');
