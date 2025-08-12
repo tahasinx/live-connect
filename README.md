@@ -1,4 +1,4 @@
-# Peer Media - WebRTC Video Chat Application
+# Live Connect - Real-Time Communication (RTC) App
 
 A modern, real-time video chat and messaging application built with WebRTC technology, featuring peer-to-peer communication, status tracking, and a beautiful responsive UI.
 
