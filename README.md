@@ -204,6 +204,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Enlink Template**: Base admin dashboard design
 - **WebRTC Community**: Standards and documentation
 
+---
+
+## 🖥️ Live Demo
+
+> https://tahasinx.github.io/live-connect/
+
+---
+
 ## 📞 Support
 
 For support and questions:
