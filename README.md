@@ -1,6 +1,6 @@
 # Live Connect - Real-Time Communication (RTC) App
 
-A modern, real-time video chat and messaging application built with WebRTC technology, featuring peer-to-peer communication, status tracking, and a beautiful responsive UI.
+A modern, real-time video chat and messaging application built with WebRTC technology, featuring peer-to-peer communication, status tracking, and a beautiful, responsive UI.
 
 ## 🌟 Features
 
@@ -8,7 +8,7 @@ A modern, real-time video chat and messaging application built with WebRTC techn
 - **Peer-to-Peer Video & Audio Calls**: Direct browser-to-browser video and audio communication using WebRTC
 - **Text Messaging**: Real-time chat with a dedicated message modal, independent of call state
 - **Connection Status Sync**: Live status indicators (Online, Idle, In Call, Disconnected) with periodic sync and visual feedback
-- **Manual Call Flow**: Calls are only initiated by user action, with ringing modal and manual accept/decline
+- **Manual Call Flow**: Calls are only initiated by user action, with a ringing modal and manual accept/decline
 - **Ringtone on Incoming/Outgoing Calls**: Both caller and callee hear a ringtone (using `assets/sounds/ring-tone-68676.mp3`) when a call is initiated, until it is answered or declined. Ringtone stops automatically when the call is handled.
 - **Idle Detection**: Automatic status updates when users are away (15-minute timeout)
 - **Automatic Reconnection**: Seamless reconnection handling with fallback peer IDs
